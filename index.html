@@ -9,6 +9,8 @@ html, body, #canvas {
 	margin: 0;
 	padding: 0;
 	border: 0;
+	width: 100%;
+	height: 100%;
 }
 
 body {
@@ -20,6 +22,8 @@ body {
 
 #canvas {
 	display: block;
+	width: 100% !important;
+	height: 100% !important;
 }
 
 #canvas:focus {
@@ -91,8 +95,7 @@ body {
 }
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
-<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
-
+		<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
 	</head>
 	<body>
 		<canvas id="canvas">
@@ -110,8 +113,21 @@ body {
 		</div>
 
 		<script src="index.js"></script>
+
+		<!-- FORCE CANVAS RESIZE TO BROWSER WINDOW -->
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":1202256,"index.wasm":37685705},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+		function resizeCanvas() {
+			const canvas = document.getElementById("canvas");
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+		}
+
+		window.addEventListener("load", resizeCanvas);
+		window.addEventListener("resize", resizeCanvas);
+		</script>
+
+		<script>
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":1202288,"index.wasm":37685705},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -174,7 +190,6 @@ const engine = new Engine(GODOT_CONFIG);
 			} catch (err) {
 				serviceWorkerRegistrationPromise = Promise.reject(new Error('Service worker registration failed.'));
 			}
-			// There's a chance that installing the service worker would fix the issue
 			Promise.race([
 				serviceWorkerRegistrationPromise.then((registration) => {
 					if (registration != null) {
@@ -182,18 +197,15 @@ const engine = new Engine(GODOT_CONFIG);
 					}
 					return registration;
 				}).then(() => engine.installServiceWorker()),
-				// For some reason, `getRegistration()` can stall
 				new Promise((resolve) => {
 					setTimeout(() => resolve(), 2000);
 				}),
 			]).then(() => {
-				// Reload if there was no error.
 				window.location.reload();
 			}).catch((err) => {
 				console.error('Error while registering service worker:', err);
 			});
 		} else {
-			// Display the message as usual
 			const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
 			displayFailureNotice(missingMsg + missing.join('\n'));
 		}
@@ -217,4 +229,3 @@ const engine = new Engine(GODOT_CONFIG);
 		</script>
 	</body>
 </html>
-
